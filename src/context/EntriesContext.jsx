@@ -1,8 +1,8 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 // Create the context
 // 		SomeContextVariable = createContext(defaultValue);
-const JournalEntriesContext = createContext([]);
+const JournalEntriesDataContext = createContext([]);
 const JournalEntriesSetterContext = createContext(null);
 
 // function SomeExample(){
@@ -10,34 +10,36 @@ const JournalEntriesSetterContext = createContext(null);
 // }
 
 // Create custom hooks to access the context data
-export function useJournalEntriesSetter() {
-  return useContext(JournalEntriesSetterContext);
-}
-
 export function useJournalEntriesData() {
   console.log("Passing data around!");
 
-  let currentJournalData = useContext(JournalEntriesContext);
-  if (currentJournalData == 0) {
-    console.log("No Entries to show!");
+  let currentJournalData = useContext(JournalEntriesDataContext);
+  if (currentJournalData.length == 0) {
+    console.log("No entries to show!");
   }
 
-  return useContext(JournalEntriesContext);
+  return currentJournalData;
+}
+
+export function useJournalEntriesSetter() {
+  return useContext(JournalEntriesSetterContext);
 }
 
 // Create the context provider
 
 export default function JournalEntriesProvider(props) {
   let [journalEntries, setJournalEntries] = useState([]);
+
+  useEffect(() => {
+    console.log(journalEntries);
+  }, [journalEntries]);
+
   return (
-    // content being shared with all childs
     // <JournalEntriesContext.Provider value={[journalEntries, setJournalEntries]}>
-    <JournalEntriesContext.Provider value={[journalEntries, setJournalEntries]}>
-      {/* { let [journalEntries, setJournalEntries] = useJournalEntriesData() } */}
-      <JournalEntriesSetterContext.Provider
-        value={setJournalEntries}
-      ></JournalEntriesSetterContext.Provider>
-      {props.children}
-    </JournalEntriesContext.Provider>
+    <JournalEntriesDataContext.Provider value={journalEntries}>
+      <JournalEntriesSetterContext.Provider value={setJournalEntries}>
+        {props.children}
+      </JournalEntriesSetterContext.Provider>
+    </JournalEntriesDataContext.Provider>
   );
 }
