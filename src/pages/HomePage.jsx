@@ -1,5 +1,5 @@
 import EntryForm from "../components/EntryForm";
-import LatestPage from "./LastestPage";
+import LatestXPosts from "../components/LatestXPosts";
 
 export default function HomePage() {
   return (
@@ -9,7 +9,7 @@ export default function HomePage() {
       <EntryForm />
 
       {/* Latest X amount of posts: */}
-      <LatestPage limit={3} />
+      <LatestXPosts limit={3} />
     </>
   );
 }

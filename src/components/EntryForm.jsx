@@ -12,11 +12,11 @@
 
 */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useJournalEntriesData,
   useJournalEntriesSetter,
-} from "../context/EntriesContext";
+} from "../contexts/EntriesContext";
 
 export default function EntryForm({ entryId }) {
   let journalEntriesData = useJournalEntriesData();
@@ -33,22 +33,54 @@ export default function EntryForm({ entryId }) {
   );
   let [localLastEdited, setLocalLastEdited] = useState(Date.now());
 
+  useEffect(() => {
+    if (localId) {
+      let specificPost = journalEntriesData.find(
+        (entry) => entry.id == localId
+      );
+
+      setLocalAuthor(specificPost.author);
+      setLocalContent(specificPost.content);
+      setLocalName(specificPost.name);
+      setLocalType(specificPost.type);
+    }
+  }, [localId]);
+
   const handleSubmission = () => {
     setJournalEntries((currentJournalEntries) => {
-      let newEntry = {
-        lastEdited: Date.now(),
-        author: localAuthor,
-        content: localContent,
-        name: localName,
-        type: localType,
-        id: localId ? localId : crypto.randomUUID(),
-      };
+      if (localId) {
+        // if ID exists, we are editing
+        let tempEntriesCopies = [...currentJournalEntries];
+        tempEntriesCopies.forEach((entry, index) => {
+          if (entry.id == localId) {
+            tempEntriesCopies[index] = {
+              lastEdited: Date.now(),
+              author: localAuthor,
+              content: localContent,
+              name: localName,
+              type: localType,
+              id: localId ? localId : crypto.randomUUID(),
+            };
+          }
+        });
+        return tempEntriesCopies;
+      } else {
+        // we are creating
+        let newEntry = {
+          lastEdited: Date.now(),
+          author: localAuthor,
+          content: localContent,
+          name: localName,
+          type: localType,
+          id: localId ? localId : crypto.randomUUID(),
+        };
 
-      // let someNewArray = currentJournalEntries;
-      // someNewArray.push(newEntry);
-      // return someNewArray;
+        // let someNewArray = currentJournalEntries;
+        // someNewArray.push(newEntry);
+        // return someNewArray;
 
-      return [...currentJournalEntries, newEntry];
+        return [...currentJournalEntries, newEntry];
+      }
     });
   };
 
